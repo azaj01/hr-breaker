@@ -57,6 +57,10 @@ class PDFStorage:
             # Parse filename: first_last_company_role.pdf or company_role.pdf
             parts = pdf_path.stem.split("_")
 
+            # Strip known language suffix (2-letter code at end)
+            if len(parts) >= 2 and len(parts[-1]) == 2 and parts[-1].isalpha():
+                parts = parts[:-1]
+
             # Heuristic: if 4+ parts, assume first_last_company_role
             if len(parts) >= 4:
                 first_name = parts[0].title()
