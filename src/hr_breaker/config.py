@@ -8,7 +8,11 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_ai_litellm import LiteLLMModel
 
+import litellm
+
 load_dotenv()
+
+litellm.suppress_debug_info = True
 
 # Backward compat: map GOOGLE_API_KEY -> GEMINI_API_KEY for litellm
 if "GEMINI_API_KEY" not in os.environ and os.environ.get("GOOGLE_API_KEY"):

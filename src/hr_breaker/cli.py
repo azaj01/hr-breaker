@@ -9,6 +9,7 @@ from hr_breaker.agents import extract_name, parse_job_posting
 from hr_breaker.models import GeneratedPDF, ResumeSource
 from hr_breaker.orchestration import optimize_for_job
 from hr_breaker.services import PDFStorage, scrape_job_posting, ScrapingError, CloudflareBlockedError
+from hr_breaker.services.pdf_parser import load_resume_content
 
 
 @click.group()
@@ -39,10 +40,10 @@ def optimize(
 ):
     """Optimize resume for job posting.
 
-    RESUME_PATH: Path to resume file (any text format: .tex, .md, .txt, etc.)
+    RESUME_PATH: Path to resume file (.tex, .md, .txt, .pdf, etc.)
     JOB_INPUT: URL or path to file with job description
     """
-    resume_content = resume_path.read_text()
+    resume_content = load_resume_content(resume_path)
 
     # Get job text (sync - may need user interaction for Cloudflare)
     job_text = _get_job_text(job_input)

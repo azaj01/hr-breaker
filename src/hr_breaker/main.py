@@ -1,8 +1,6 @@
 import asyncio
 import subprocess
 import sys
-from pathlib import Path
-
 import nest_asyncio
 import streamlit as st
 
@@ -23,7 +21,7 @@ from hr_breaker.services import (
     scrape_job_posting,
     CloudflareBlockedError,
 )
-from hr_breaker.services.pdf_parser import extract_text_from_pdf
+from hr_breaker.services.pdf_parser import load_resume_content_from_upload
 
 # Initialize services
 cache = ResumeCache()
@@ -129,7 +127,7 @@ with st.sidebar:
         st.caption("No PDFs yet")
 
     st.divider()
-    st.caption(f"Models: {settings.pro_model}/{settings.flash_model}")
+    st.text(f"Models\nPro: {settings.pro_model}\nFlash: {settings.flash_model}")
 
 # Main content
 st.markdown("### HR-Breaker")
@@ -192,13 +190,9 @@ with col_resume:
                 key=uploader_key,
             )
             if uploaded_file:
-                if uploaded_file.name.lower().endswith(".pdf"):
-                    temp_path = Path(f"/tmp/{uploaded_file.name}")
-                    temp_path.write_bytes(uploaded_file.read())
-                    resume_content = extract_text_from_pdf(temp_path)
-                    temp_path.unlink()
-                else:
-                    resume_content = uploaded_file.read().decode("utf-8")
+                resume_content = load_resume_content_from_upload(
+                    uploaded_file.name, uploaded_file.read()
+                )
         else:
             pasted_resume = st.text_area(
                 "Paste resume",
