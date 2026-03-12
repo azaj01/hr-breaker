@@ -98,7 +98,7 @@ uv run streamlit run src/hr_breaker/main.py
 # CLI
 uv run hr-breaker optimize resume.txt https://example.com/job
 uv run hr-breaker optimize resume.txt https://example.com/job -l ru # optimize, then translate to Russian
-uv run hr-breaker optimize resume.txt job.txt -d              # debug mode
+uv run hr-breaker optimize resume.txt job.txt -D              # disable debug mode (on by default)
 uv run hr-breaker optimize resume.txt job.txt --seq           # sequential filters (early exit)
 uv run hr-breaker optimize resume.txt job.txt --no-shame      # massively relax lies/hallucination/AI checks (use with caution!)
 uv run hr-breaker optimize resume.txt job.txt --instructions "Focus on Python, add K8s cert"  # user instructions
@@ -109,8 +109,8 @@ uv run pytest tests/
 ```
 
 ### Output
-- Final PDFs: `output/<name>_<company>_<role>.pdf`
-- Debug iterations: `output/debug_<company>_<role>/` (with -d flag)
+- Final PDFs: `output/<MMDD_HHMM>_<name>_<company>_<role>_<lang>.pdf` (run ID prefix for uniqueness)
+- Debug iterations: `output/<MMDD_HHMM>_debug_<company>_<role>/` (with -d flag)
 - Records: `output/index.json`
 
 ### Resume Rendering

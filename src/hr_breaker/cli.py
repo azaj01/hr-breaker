@@ -20,6 +20,7 @@ from hr_breaker.services import (
     ScrapingError,
     CloudflareBlockedError,
 )
+from hr_breaker.services.pdf_storage import generate_run_id
 from hr_breaker.services.pdf_parser import load_resume_content
 
 
@@ -46,10 +47,10 @@ OUTPUT_DIR = Path("output")
     "--max-iterations", "-n", type=int, default=None, envvar="HR_BREAKER_MAX_ITERATIONS"
 )
 @click.option(
-    "--debug",
-    "-d",
-    is_flag=True,
-    help="Save all iterations as PDFs to output/debug/",
+    "--debug/--no-debug",
+    "-d/-D",
+    default=True,
+    help="Save all iterations as PDFs to output/debug/ (default: on)",
     envvar="HR_BREAKER_DEBUG",
 )
 @click.option(
@@ -103,6 +104,7 @@ def optimize(
     job_text = _get_job_text(job_input)
 
     pdf_storage = PDFStorage()
+    run_id = generate_run_id()
     debug_dir: Path | None = None
 
     def on_iteration(i, optimized, validation):
@@ -150,7 +152,7 @@ def optimize(
         click.echo(f"Job: {job.title} at {job.company}")
 
         if debug:
-            debug_dir = pdf_storage.generate_debug_dir(job.company, job.title)
+            debug_dir = pdf_storage.generate_debug_dir(job.company, job.title, run_id=run_id)
 
         mode = "sequential" if seq else "parallel"
         shame_mode = " [no-shame]" if no_shame else ""
@@ -193,6 +195,7 @@ def optimize(
                 job.company,
                 job.title,
                 lang_code=lang_code,
+                run_id=run_id,
             ).name
         )
 

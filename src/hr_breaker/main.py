@@ -21,6 +21,7 @@ from hr_breaker.services import (
     scrape_job_posting,
     CloudflareBlockedError,
 )
+from hr_breaker.services.pdf_storage import generate_run_id
 from hr_breaker.services.pdf_parser import load_resume_content_from_upload
 
 # Initialize services
@@ -79,7 +80,7 @@ with st.sidebar:
     sequential_mode = st.checkbox(
         "Sequential", value=False, help="Run filters sequentially with early exit"
     )
-    debug_mode = st.checkbox("Debug", value=False, help="Save each iteration PDF")
+    debug_mode = st.checkbox("Debug", value=True, help="Save each iteration PDF")
     no_shame_mode = st.checkbox(
         "No Shame",
         value=False,
@@ -328,6 +329,7 @@ clicked = st.button(
 )
 
 if clicked:
+    st.session_state["run_id"] = generate_run_id()
     source = st.session_state["source_resume"]
     # Persist instructions to cache
     instructions_value = user_instructions.strip() if user_instructions else None
@@ -345,7 +347,9 @@ if clicked:
         # Setup debug dir if enabled
         debug_dir = None
         if debug_mode:
-            debug_dir = pdf_storage.generate_debug_dir(job.company, job.title)
+            debug_dir = pdf_storage.generate_debug_dir(
+                job.company, job.title, run_id=st.session_state["run_id"]
+            )
 
         # Store iteration results for session state
         iteration_results = []
@@ -395,6 +399,7 @@ if clicked:
             pdf_path = pdf_storage.generate_path(
                 source.first_name, source.last_name, job.company, job.title,
                 lang_code=selected_lang_code,
+                run_id=st.session_state["run_id"],
             )
             pdf_path.parent.mkdir(parents=True, exist_ok=True)
             pdf_path.write_bytes(optimized.pdf_bytes)
@@ -503,6 +508,7 @@ if "last_result" in st.session_state:
                         tr_pdf_path = pdf_storage.generate_path(
                             source.first_name, source.last_name, job.company, job.title,
                             lang_code=translate_language.code,
+                            run_id=st.session_state.get("run_id"),
                         )
                         tr_pdf_path.parent.mkdir(parents=True, exist_ok=True)
                         tr_pdf_path.write_bytes(translated.pdf_bytes)
