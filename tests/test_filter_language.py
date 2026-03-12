@@ -218,3 +218,56 @@ class TestHallucinationDetectorLanguage:
 
             prompt = mock_agent.run.call_args[0][0]
             assert "LANGUAGE NOTE" not in prompt
+
+
+class TestAIGeneratedDetectorLanguage:
+
+    @pytest.mark.asyncio
+    async def test_russian_context_in_prompt(self):
+        """detect_ai_generated should mention language when non-English."""
+        russian = get_language("ru")
+        optimized = OptimizedResume(
+            html="<div>Разработчик</div>",
+            source_checksum="abc",
+            pdf_text="Разработчик Python",
+        )
+
+        with patch("hr_breaker.agents.ai_generated_detector.get_ai_generated_agent") as mock_get:
+            mock_agent = AsyncMock()
+            mock_result = MagicMock()
+            mock_result.output = MagicMock(
+                is_ai_generated=False, ai_probability=0.1, indicators=[],
+            )
+            mock_agent.run.return_value = mock_result
+            mock_get.return_value = mock_agent
+
+            from hr_breaker.agents.ai_generated_detector import detect_ai_generated
+            await detect_ai_generated(optimized, language=russian)
+
+            prompt = mock_agent.run.call_args[0][0]
+            assert "Russian" in prompt
+            assert "LANGUAGE NOTE" in prompt
+
+    @pytest.mark.asyncio
+    async def test_no_language_note_when_none(self):
+        """No LANGUAGE NOTE when language is None."""
+        optimized = OptimizedResume(
+            html="<div>Test</div>",
+            source_checksum="abc",
+            pdf_text="Test",
+        )
+
+        with patch("hr_breaker.agents.ai_generated_detector.get_ai_generated_agent") as mock_get:
+            mock_agent = AsyncMock()
+            mock_result = MagicMock()
+            mock_result.output = MagicMock(
+                is_ai_generated=False, ai_probability=0.1, indicators=[],
+            )
+            mock_agent.run.return_value = mock_result
+            mock_get.return_value = mock_agent
+
+            from hr_breaker.agents.ai_generated_detector import detect_ai_generated
+            await detect_ai_generated(optimized, language=None)
+
+            prompt = mock_agent.run.call_args[0][0]
+            assert "LANGUAGE NOTE" not in prompt

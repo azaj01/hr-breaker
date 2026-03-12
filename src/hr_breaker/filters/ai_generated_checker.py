@@ -24,7 +24,7 @@ class AIGeneratedChecker(BaseFilter):
         source: ResumeSource,
         language: Language | None = None,
     ) -> FilterResult:
-        result = await detect_ai_generated(optimized)
+        result = await detect_ai_generated(optimized, language=language)
         # Halve threshold in no-shame mode
         result.threshold = self.threshold / 2 if self.no_shame else self.threshold
         result.passed = result.score >= result.threshold
