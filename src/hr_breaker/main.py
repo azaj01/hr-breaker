@@ -59,6 +59,8 @@ def cached_parse_job(text: str):
 def display_filter_results(validation: ValidationResult):
     """Display filter results in UI."""
     for result in validation.results:
+        if result.skipped:
+            continue
         icon = "[OK]" if result.passed else "[X]"
         with st.expander(
             f"{icon} {result.filter_name} - Score: {result.score:.2f}/{result.threshold:.2f}"
@@ -446,10 +448,11 @@ if "last_result" in st.session_state:
     if validation.passed:
         st.success("All filters passed!")
     else:
-        passed = [r.filter_name for r in validation.results if r.passed]
-        failed = [r.filter_name for r in validation.results if not r.passed]
+        active = [r for r in validation.results if not r.skipped]
+        passed = [r.filter_name for r in active if r.passed]
+        failed = [r.filter_name for r in active if not r.passed]
         st.warning(
-            f"Max iterations ({len(passed)}/{len(validation.results)} passed). Failed: {', '.join(failed)}"
+            f"Max iterations ({len(passed)}/{len(active)} passed). Failed: {', '.join(failed)}"
         )
 
     if debug_dir:

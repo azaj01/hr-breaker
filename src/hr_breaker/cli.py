@@ -112,6 +112,7 @@ def optimize(
         scores = ", ".join(
             f"{r.filter_name}:{r.score:.2f}/{r.threshold:.2f}"
             for r in validation.results
+            if not r.skipped
         )
         click.echo(f"  Iteration {i + 1}: {status} [{scores}]")
 

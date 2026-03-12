@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     filter_llm_threshold: float = 0.7
     filter_vector_threshold: float = 0.4
     filter_ai_generated_threshold: float = 0.4
+    filter_translation_threshold: float = 1.0
 
     # Resume length limits
     resume_max_chars: int = 4500

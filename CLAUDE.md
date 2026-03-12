@@ -67,6 +67,7 @@ src/hr_breaker/
 - `name_extractor` - Extract name from any resume format
 - `hallucination_detector` - Detect fabricated content
 - `ai_generated_detector` - Detect AI-generated content indicators
+- `translation_checker` - Evaluate translation quality for non-English resumes
 
 ### Filter System
 Filters run by priority (lower first). Default: parallel execution. Use `--seq` for early exit on failure.
@@ -80,6 +81,7 @@ Filters run by priority (lower first). Default: parallel execution. Use `--seq` 
 | 5 | LLMChecker | Combined vision + ATS simulation |
 | 6 | VectorSimilarityMatcher | Embedding similarity (via litellm) |
 | 7 | AIGeneratedChecker | AI content detection |
+| 8 | TranslationQualityChecker | Translation quality for non-English resumes (auto-pass for English) |
 
 To add filter: subclass `BaseFilter`, set `name` and `priority`, use `@FilterRegistry.register`
 
